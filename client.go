@@ -3,6 +3,7 @@ package apns
 import (
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"net"
 	"strings"
 	"time"
@@ -96,9 +97,17 @@ func (client *Client) ConnectAndWrite(resp *PushNotificationResponse, payload []
 	if len(client.CertificateBase64) == 0 && len(client.KeyBase64) == 0 {
 		// The user did not specify raw block contents, so check the filesystem.
 		cert, err = tls.LoadX509KeyPair(client.CertificateFile, client.KeyFile)
+
+		if err != nil {
+			fmt.Printf("Error while trying to read in cert files: %v\n", err)
+		}
 	} else {
 		// The user provided the raw block contents, so use that.
 		cert, err = tls.X509KeyPair([]byte(client.CertificateBase64), []byte(client.KeyBase64))
+
+		if err != nil {
+			fmt.Printf("Error while using byte cert and keys: %v\n", err)
+		}
 	}
 
 	if err != nil {
